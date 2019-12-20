@@ -186,7 +186,7 @@ class GoeCharger:
         if lockType == GoeCharger.LockType.UNLOCKCARFIRST or lockType == GoeCharger.LockType.AUTOMATIC or lockType == GoeCharger.LockType.LOCKED:
             return self.__setParameter('ust', str(lockType.value))
 
-        raise Exception('Invalid AccessType: %d provided' % accessType)
+        raise Exception('Invalid AccessType: %d provided' % lockType)
 
     def setAllowCharging(self, allow):
         if allow:
