@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="goecharger",
-    version="0.0.4",
+    version="0.0.5",
     author="Carsten Thiele",
     author_email="software@carsten-thiele.de",
     description="A Python API for accessing the go-eCharger EV-Charger",

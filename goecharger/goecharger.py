@@ -34,13 +34,13 @@ class GoeCharger:
         AUTOMATIC = 1
         LOCKED = 2
 
-    V_L1 = 0
-    V_L2 = 1
-    V_L3 = 2
-    V_N  = 3
-    A_L1 = 4
-    A_L2 = 5
-    A_L3 = 6
+    U_L1 = 0
+    U_L2 = 1
+    U_L3 = 2
+    U_N  = 3
+    I_L1 = 4
+    I_L2 = 5
+    I_L3 = 6
     P_L1 = 7
     P_L2 = 8
     P_L3 = 9
@@ -134,13 +134,13 @@ class GoeCharger:
             'energy_total': energy_total,
             'wifi': wifi,
 
-            'v_l1': int(status['nrg'][GoeCharger.V_L1]),
-            'v_l2': int(status['nrg'][GoeCharger.V_L2]),
-            'v_l3' : int(status['nrg'][GoeCharger.V_L3]),
-            'v_n': int(status['nrg'][GoeCharger.V_N]),
-            'a_l1': int(status['nrg'][GoeCharger.A_L1]) / 10.0,
-            'a_l2': int(status['nrg'][GoeCharger.A_L2]) / 10.0,
-            'a_l3': int(status['nrg'][GoeCharger.A_L3]) / 10.0,
+            'u_l1': int(status['nrg'][GoeCharger.U_L1]),
+            'u_l2': int(status['nrg'][GoeCharger.U_L2]),
+            'u_l3' : int(status['nrg'][GoeCharger.U_L3]),
+            'u_n': int(status['nrg'][GoeCharger.U_N]),
+            'i_l1': int(status['nrg'][GoeCharger.I_L1]) / 10.0,
+            'i_l2': int(status['nrg'][GoeCharger.I_L2]) / 10.0,
+            'i_l3': int(status['nrg'][GoeCharger.I_L3]) / 10.0,
             'p_l1': int(status['nrg'][GoeCharger.P_L1]) / 10.0,
             'p_l2': int(status['nrg'][GoeCharger.P_L2]) / 10.0,
             'p_l3': int(status['nrg'][GoeCharger.P_L3]) / 10.0,
