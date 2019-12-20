@@ -87,7 +87,7 @@ class GoeCharger:
         charger_access = GoeCharger.GO_ACCESS.get(status['ast']) or 'unknown'
         allow_charging = GoeCharger.GO_ALLOW_CHARGING.get(status['alw']) or 'unknown'
         stop_mode = GoeCharger.GO_STOP_MODE.get(status['stp']) or 'unknown'
-        cable_amp = int(status['cbl'])
+        cable_max_current = int(status['cbl'])
 
         phase = int(status['pha'])
 
@@ -98,7 +98,7 @@ class GoeCharger:
         post_contactor_l2 = self.__phaseDetection(phase, 0x02)
         post_contactor_l3 = self.__phaseDetection(phase, 0x01)
 
-        charger_tmp = int(status['tmp'])
+        charger_temp = int(status['tmp'])
         current_session_charged_energy = round(int(status['dws']) / 360000.0,5)
         charge_limit = int(status['dwo']) / 10.0
         adapter = GoeCharger.GO_ADAPTER.get(status['adi']) or 'unknown'
@@ -114,19 +114,19 @@ class GoeCharger:
 
         return ( {
             'car_status': car_status,
-            'charger_amp_pwm': charger_amp_pwm,
+            'charger_current_pwm': charger_amp_pwm,
             'charger_err': charger_err,
             'charger_access': charger_access,
             'allow_charging': allow_charging,
             'stop_mode': stop_mode,
-            'cable_amp': cable_amp,
+            'cable_max_current': cable_max_current,
             'pre_contactor_l1': pre_contactor_l1,
             'pre_contactor_l2': pre_contactor_l2,
             'pre_contactor_l3': pre_contactor_l3,
             'post_contactor_l1': post_contactor_l1,
             'post_contactor_l2': post_contactor_l2,
             'post_contactor_l3': post_contactor_l3,
-            'charger_tmp': charger_tmp,
+            'charger_temp': charger_temp,
             'current_session_charged_energy': current_session_charged_energy,
             'charge_limit': charge_limit,
             'adapter': adapter,
