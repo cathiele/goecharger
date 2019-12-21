@@ -82,7 +82,8 @@ class GoeCharger:
 
     def __mapStatusReponse(self, status):
         car_status = GoeCharger.GO_CAR_STATUS.get(status['car']) or 'unknown'
-        charger_amp_pwm = int(status['amp'])
+        charger_max_current = int(status['amp'])
+        charger_absolute_max_current = int(status['ama'])
         charger_err = GoeCharger.GO_ERR.get(status['err']) or 'UNKNOWN'
         charger_access = GoeCharger.GO_ACCESS.get(status['ast']) or 'unknown'
         allow_charging = GoeCharger.GO_ALLOW_CHARGING.get(status['alw']) or 'unknown'
@@ -114,7 +115,8 @@ class GoeCharger:
 
         return ( {
             'car_status': car_status,
-            'charger_current_pwm': charger_amp_pwm,
+            'charger_max_current': charger_max_current,
+            'charger_absolute_max_current': charger_absolute_max_current,
             'charger_err': charger_err,
             'charger_access': charger_access,
             'allow_charging': allow_charging,
@@ -169,13 +171,6 @@ class GoeCharger:
         setRequest = requests.get("http://%s/mqtt?payload=%s=%s" % (self.host, parameter, value))
         return self.__mapStatusReponse(setRequest.json())
 
-    def setChargerAmpere(self, ampere):
-        if ampere < 6:
-            ampere = 6
-        if ampere > 32:
-            ampere = 32
-        return self.__setParameter('amp', str(ampere))
-
     def setAccessType(self, accessType):
         if accessType == GoeCharger.AccessType.FREE or accessType == GoeCharger.AccessType.RFID_APP or accessType == GoeCharger.AccessType.AUTO:
             return self.__setParameter('ast', str(accessType.value))
@@ -227,25 +222,32 @@ class GoeCharger:
         else:
             return self.__setParameter('lse', '0')
 
-    def setAbsoluteMaxAmpere(self, maxAmp):
-        if maxAmp < 6:
-            maxAmp = 6
-        if maxAmp > 32:
-            maxAmp = 32
-        return self.__setParameter('ama', str(maxAmp))
+    def setAbsoluteMaxCurrent(self, maxCurrent):
+        if maxCurrent < 6:
+            maxCurrent = 6
+        if maxCurrent > 32:
+            maxCurrent = 32
+        return self.__setParameter('ama', str(maxCurrent))
+
+    def setMaxCurrent(self, current):
+        if current < 6:
+            current = 6
+        if current > 32:
+            current = 32
+        return self.__setParameter('amp', str(current))
 
     def setChargeLimit(self, chargeLimit):
         limit = int(chargeLimit * 10) if chargeLimit >= 0 else 0
         return self.__setParameter('dwo', str(limit))
 
-    def setButtonAmpValue(self, step, amp):
+    def setButtonCurrentValue(self, step, current):
         if step < 1 or step > 5:
             raise Exception('Invalid Button step %d requested!' % step)
-        if amp < 6:
-            amp = 0
-        if amp > 32:
-            amp = 32
-        return self.__setParameter('al%d' % step, str(amp))
+        if current < 6:
+            current = 0
+        if current > 32:
+            current = 32
+        return self.__setParameter('al%d' % step, str(current))
 
     def requestStatus(self):
         status = self.__queryStatusApi()
