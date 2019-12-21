@@ -15,10 +15,9 @@ This is the first version of the API so there are still breaking chnages possibl
 
 [PyPi Package](https://pypi.org/project/goecharger/)
 
+[Home Assistant Integration](https://github.com/cathiele/homeassistant-goecharger)
+
 [goecharger CLI App](https://github.com/cathiele/goecharger-client) (TBD / WIP)
-
-[Home Assistant Integration](https://github.com/cathiele/homeassistant-goecharger) (TBD / WIP)
-
 
 # Features
 - Query Charger Status
