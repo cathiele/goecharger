@@ -5,74 +5,8 @@
 import requests
 from enum import Enum
 
-class GoeCharger:
-    host = ''
 
-    def __init__(self, host):
-        self.host = host
-
-
-    GO_CAR_STATUS = {
-        '1': 'Charger ready, no vehicle',
-        '2': 'charging',
-        '3': 'Waiting for vehicle',
-        '4': 'charging finished, vehicle still connected'
-    }
-
-    GO_ADAPTER = {
-        '0': 'No Adapter',
-        '1': '16A-Adapter'
-    }
-
-    class AccessType(Enum):
-        FREE = 0
-        RFID_APP = 1
-        AUTO = 2
-
-    class LockType(Enum):
-        UNLOCKCARFIRST = 0
-        AUTOMATIC = 1
-        LOCKED = 2
-
-    U_L1 = 0
-    U_L2 = 1
-    U_L3 = 2
-    U_N  = 3
-    I_L1 = 4
-    I_L2 = 5
-    I_L3 = 6
-    P_L1 = 7
-    P_L2 = 8
-    P_L3 = 9
-    P_N  = 10
-    P_ALL= 11
-    LF_L1= 12
-    LF_L2= 13
-    LF_L3= 14
-    LF_N = 15
-
-    GO_ERR = {
-        '0': 'OK',
-        '1': 'RCCB',
-        '2': 'PHASE',
-        '8': 'NO_GROUND',
-        '10': 'INTERNAL'
-    }
-
-    GO_ACCESS = {
-        '0': 'free',
-        '1': 'rfid/app' ,
-        '2': 'cost based / automatic'
-    }
-
-    GO_ALLOW_CHARGING = {
-        '0': 'off',
-        '1': 'on'
-    }
-    GO_STOP_MODE = {
-        '0': 'manual',
-        '2': 'kWh based'
-    }
+class GoeChargerStatusMapper:
 
     def __phaseDetection(self, phase, bit):
         if phase & bit:
@@ -80,7 +14,7 @@ class GoeCharger:
         else:
             return 'off'
 
-    def __mapStatusReponse(self, status):
+    def mapApiStatusResponse(self, status):
         car_status = GoeCharger.GO_CAR_STATUS.get(status['car']) or 'unknown'
         charger_max_current = int(status['amp'])
         charger_absolute_max_current = int(status['ama'])
@@ -162,6 +96,77 @@ class GoeCharger:
 
         })
 
+class GoeCharger:
+    host = ''
+
+    def __init__(self, host):
+        if (host == None or host == ''):
+            raise ValueError("host must be specified")
+        self.host = host
+
+
+    GO_CAR_STATUS = {
+        '1': 'Charger ready, no vehicle',
+        '2': 'charging',
+        '3': 'Waiting for vehicle',
+        '4': 'charging finished, vehicle still connected'
+    }
+
+    GO_ADAPTER = {
+        '0': 'No Adapter',
+        '1': '16A-Adapter'
+    }
+
+    class AccessType(Enum):
+        FREE = 0
+        RFID_APP = 1
+        AUTO = 2
+
+    class LockType(Enum):
+        UNLOCKCARFIRST = 0
+        AUTOMATIC = 1
+        LOCKED = 2
+
+    U_L1 = 0
+    U_L2 = 1
+    U_L3 = 2
+    U_N  = 3
+    I_L1 = 4
+    I_L2 = 5
+    I_L3 = 6
+    P_L1 = 7
+    P_L2 = 8
+    P_L3 = 9
+    P_N  = 10
+    P_ALL= 11
+    LF_L1= 12
+    LF_L2= 13
+    LF_L3= 14
+    LF_N = 15
+
+    GO_ERR = {
+        '0': 'OK',
+        '1': 'RCCB',
+        '3': 'PHASE',
+        '8': 'NO_GROUND',
+        '10': 'INTERNAL'
+    }
+
+    GO_ACCESS = {
+        '0': 'free',
+        '1': 'rfid/app' ,
+        '2': 'cost based / automatic'
+    }
+
+    GO_ALLOW_CHARGING = {
+        '0': 'off',
+        '1': 'on'
+    }
+    GO_STOP_MODE = {
+        '0': 'manual',
+        '2': 'kWh based'
+    }
+
     def __queryStatusApi(self):
         statusRequest = requests.get("http://%s/status" % self.host)
         status = statusRequest.json()
@@ -169,19 +174,19 @@ class GoeCharger:
     
     def __setParameter(self, parameter, value):
         setRequest = requests.get("http://%s/mqtt?payload=%s=%s" % (self.host, parameter, value))
-        return self.__mapStatusReponse(setRequest.json())
+        return GoeChargerStatusMapper().mapApiStatusResponse(setRequest.json())
 
     def setAccessType(self, accessType):
         if accessType == GoeCharger.AccessType.FREE or accessType == GoeCharger.AccessType.RFID_APP or accessType == GoeCharger.AccessType.AUTO:
             return self.__setParameter('ast', str(accessType.value))
 
-        raise Exception('Invalid AccessType: %d provided' % accessType)
+        raise ValueError('Invalid AccessType: %d provided' % accessType)
 
     def setLockType(self, lockType):
         if lockType == GoeCharger.LockType.UNLOCKCARFIRST or lockType == GoeCharger.LockType.AUTOMATIC or lockType == GoeCharger.LockType.LOCKED:
             return self.__setParameter('ust', str(lockType.value))
 
-        raise Exception('Invalid AccessType: %d provided' % lockType)
+        raise ValueError('Invalid LockType: %d provided' % lockType)
 
     def setAllowCharging(self, allow):
         if allow:
@@ -215,12 +220,11 @@ class GoeCharger:
             brightness = 255
         return self.__setParameter('lbr', str(brightness))
 
-    # TODO: not working with fw 033
     def setLedAutoTurnOff(self, autoTurnOff):
         if autoTurnOff:
-            return self.__setParameter('lse', '1')
+            return self.__setParameter('r2x', '1')
         else:
-            return self.__setParameter('lse', '0')
+            return self.__setParameter('r2x', '0')
 
     def setAbsoluteMaxCurrent(self, maxCurrent):
         if maxCurrent < 6:
@@ -242,7 +246,7 @@ class GoeCharger:
 
     def setButtonCurrentValue(self, step, current):
         if step < 1 or step > 5:
-            raise Exception('Invalid Button step %d requested!' % step)
+            raise ValueError('Invalid Button step %d requested!' % step)
         if current < 6:
             current = 0
         if current > 32:
@@ -251,5 +255,5 @@ class GoeCharger:
 
     def requestStatus(self):
         status = self.__queryStatusApi()
-        response = self.__mapStatusReponse(status)
+        response = GoeChargerStatusMapper().mapApiStatusResponse(status)
         return response
