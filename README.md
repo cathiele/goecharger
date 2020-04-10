@@ -9,7 +9,7 @@ This is the first version of the API so there are still breaking chnages possibl
 # Links
 [Product Homepage](https://go-e.co/en/go-echarger-home-2/)
 
-[API-Documentation](https://go-e.co/api)
+[API-Documentation](https://go-e.co/app/api.pdf)
 
 [Project Homepage](https://github.com/cathiele/goecharger)
 
