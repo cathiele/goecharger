@@ -182,7 +182,7 @@ class GoeCharger:
             statusRequest = requests.get("http://%s/status" % self.host, timeout=5)  # TODO: Configurable Timeout
             status = statusRequest.json()
             return status
-        except (requests.exceptions.ConnectTimeout, ConnectionRefusedError):
+        except (requests.exceptions.ConnectTimeout, requests.exceptions.ConnectionError):
             return {}
 
     def __setParameter(self, parameter, value):
