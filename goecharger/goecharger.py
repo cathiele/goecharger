@@ -16,7 +16,7 @@ class GoeChargerStatusMapper:
 
     def mapApiStatusResponse(self, status):
         car_status = GoeCharger.GO_CAR_STATUS.get(status.get('car')) or 'unknown'
-        charger_max_current = int(status.get('amp', 6))
+        charger_max_current = int(status.get('amp', 0))
         charger_absolute_max_current = int(status.get('ama', 0))
         charger_err = GoeCharger.GO_ERR.get(status.get('err')) or 'UNKNOWN'
         charger_access = GoeCharger.GO_ACCESS.get(status.get('ast')) or 'unknown'
