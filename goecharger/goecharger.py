@@ -15,37 +15,46 @@ class GoeChargerStatusMapper:
             return 'off'
 
     def mapApiStatusResponse(self, status):
-        car_status = GoeCharger.GO_CAR_STATUS.get(status['car']) or 'unknown'
-        charger_max_current = int(status['amp'])
-        charger_absolute_max_current = int(status['ama'])
-        charger_err = GoeCharger.GO_ERR.get(status['err']) or 'UNKNOWN'
-        charger_access = GoeCharger.GO_ACCESS.get(status['ast']) or 'unknown'
-        allow_charging = GoeCharger.GO_ALLOW_CHARGING.get(status['alw']) or 'unknown'
-        stop_mode = GoeCharger.GO_STOP_MODE.get(status['stp']) or 'unknown'
-        cable_max_current = int(status['cbl'])
+        car_status = GoeCharger.GO_CAR_STATUS.get(status.get('car')) or 'unknown'
+        charger_max_current = int(status.get('amp',0))
+        charger_absolute_max_current = int(status.get('ama',0))
+        charger_err = GoeCharger.GO_ERR.get(status.get('err')) or 'UNKNOWN'
+        charger_access = GoeCharger.GO_ACCESS.get(status.get('ast')) or 'unknown'
+        allow_charging = GoeCharger.GO_ALLOW_CHARGING.get(status.get('alw')) or 'unknown'
+        stop_mode = GoeCharger.GO_STOP_MODE.get(status.get('stp')) or 'unknown'
+        cable_max_current = int(status.get('cbl',0))
 
-        phase = int(status['pha'])
+        try:
+            phase = int(status.get('pha'))
 
-        pre_contactor_l1 = self.__phaseDetection(phase, 0x20)
-        pre_contactor_l2 = self.__phaseDetection(phase, 0x10)
-        pre_contactor_l3 = self.__phaseDetection(phase, 0x08)
-        post_contactor_l1 = self.__phaseDetection(phase, 0x04)
-        post_contactor_l2 = self.__phaseDetection(phase, 0x02)
-        post_contactor_l3 = self.__phaseDetection(phase, 0x01)
+            pre_contactor_l1 = self.__phaseDetection(phase, 0x20)
+            pre_contactor_l2 = self.__phaseDetection(phase, 0x10)
+            pre_contactor_l3 = self.__phaseDetection(phase, 0x08)
+            post_contactor_l1 = self.__phaseDetection(phase, 0x04)
+            post_contactor_l2 = self.__phaseDetection(phase, 0x02)
+            post_contactor_l3 = self.__phaseDetection(phase, 0x01)
+        except:
+            pre_contactor_l1 = pre_contactor_l2 =  pre_contactor_l3 = post_contactor_l1 = post_contactor_l2 = post_contactor_l3 = 'unknown'
 
-        charger_temp = int(status['tmp'])
-        current_session_charged_energy = round(int(status['dws']) / 360000.0,5)
-        charge_limit = int(status['dwo']) / 10.0
-        adapter = GoeCharger.GO_ADAPTER.get(status['adi']) or 'unknown'
-        unlocked_by_card = int(status['uby'])
-        energy_total = int(status['eto']) / 10.0
-        wifi = 'connected' if status['wst'] == '3' else 'not connected'
-        firmware = status['fwv']
-        serial_number = status['sse']
-        wifi_ssid = status['wss']
-        wifi_enabled = 'on' if status['wen'] == '1' else 'off'
-        timezone_offset = int(status['tof']) - 100
-        timezone_dst_offset = int(status['tds']) 
+        charger_temp = int(status.get('tmp',0))
+        current_session_charged_energy = round(int(status.get('dws',0)) / 360000.0,5)
+        charge_limit = int(status.get('dwo',0)) / 10.0
+        adapter = GoeCharger.GO_ADAPTER.get(status.get('adi')) or 'unknown'
+        unlocked_by_card = int(status.get('uby',0))
+        energy_total = int(status.get('eto',0)) / 10.0
+        wifi = 'connected' if status.get('wst') == '3' else 'unknown' if status.get('wst') == None else 'not connected'
+        firmware = status.get('fwv', 'unknown')
+        serial_number = status.get('sse', 'unknown')
+        wifi_ssid = status.get('wss', 'unknown')
+        wifi_enabled = 'on' if status.get('wen') == '1' else 'off' if status.get('wen') == '0' else 'unknown'
+        timezone_offset = int(status.get('tof',0)) - 100
+        timezone_dst_offset = int(status.get('tds',0)) 
+
+        def valueOrNull(array, index):
+            try: 
+                return array[index]
+            except IndexError:
+                return 0
 
         return ( {
             'car_status': car_status,
@@ -70,22 +79,22 @@ class GoeChargerStatusMapper:
             'energy_total': energy_total,
             'wifi': wifi,
 
-            'u_l1': int(status['nrg'][GoeCharger.U_L1]),
-            'u_l2': int(status['nrg'][GoeCharger.U_L2]),
-            'u_l3' : int(status['nrg'][GoeCharger.U_L3]),
-            'u_n': int(status['nrg'][GoeCharger.U_N]),
-            'i_l1': int(status['nrg'][GoeCharger.I_L1]) / 10.0,
-            'i_l2': int(status['nrg'][GoeCharger.I_L2]) / 10.0,
-            'i_l3': int(status['nrg'][GoeCharger.I_L3]) / 10.0,
-            'p_l1': int(status['nrg'][GoeCharger.P_L1]) / 10.0,
-            'p_l2': int(status['nrg'][GoeCharger.P_L2]) / 10.0,
-            'p_l3': int(status['nrg'][GoeCharger.P_L3]) / 10.0,
-            'p_n': int(status['nrg'][GoeCharger.P_N]) / 10.0,
-            'p_all': int(status['nrg'][GoeCharger.P_ALL]) / 100.0,
-            'lf_l1': int(status['nrg'][GoeCharger.LF_L1]),
-            'lf_l2': int(status['nrg'][GoeCharger.LF_L2]),
-            'lf_l3': int(status['nrg'][GoeCharger.LF_L3]),
-            'lf_n': int(status['nrg'][GoeCharger.LF_N]),
+            'u_l1': int(valueOrNull(status.get('nrg',[]),GoeCharger.U_L1)),
+            'u_l2': int(valueOrNull(status.get('nrg',[]),GoeCharger.U_L2)),
+            'u_l3': int(valueOrNull(status.get('nrg',[]),GoeCharger.U_L3)),
+            'u_n': int(valueOrNull(status.get('nrg',[]),GoeCharger.U_N)),
+            'i_l1': int(valueOrNull(status.get('nrg',[]),GoeCharger.I_L1)) / 10.0,
+            'i_l2': int(valueOrNull(status.get('nrg',[]),GoeCharger.I_L2)) / 10.0,
+            'i_l3': int(valueOrNull(status.get('nrg',[]),GoeCharger.I_L3)) / 10.0,
+            'p_l1': int(valueOrNull(status.get('nrg',[]),GoeCharger.P_L1)) / 10.0,
+            'p_l2': int(valueOrNull(status.get('nrg',[]),GoeCharger.P_L2)) / 10.0,
+            'p_l3': int(valueOrNull(status.get('nrg',[]),GoeCharger.P_L3)) / 10.0,
+            'p_n': int(valueOrNull(status.get('nrg',[]),GoeCharger.P_N)) / 10.0,
+            'p_all': int(valueOrNull(status.get('nrg',[]),GoeCharger.P_ALL)) / 100.0,
+            'lf_l1': int(valueOrNull(status.get('nrg',[]),GoeCharger.LF_L1)),
+            'lf_l2': int(valueOrNull(status.get('nrg',[]),GoeCharger.LF_L2)),
+            'lf_l3': int(valueOrNull(status.get('nrg',[]),GoeCharger.LF_L3)),
+            'lf_n': int(valueOrNull(status.get('nrg',[]),GoeCharger.LF_N)),
 
             'firmware': firmware,
             'serial_number': serial_number,
@@ -168,9 +177,12 @@ class GoeCharger:
     }
 
     def __queryStatusApi(self):
-        statusRequest = requests.get("http://%s/status" % self.host)
-        status = statusRequest.json()
-        return status
+        try:
+            statusRequest = requests.get("http://%s/status" % self.host, timeout=5) # TODO: Configurable Timeout
+            status = statusRequest.json()
+            return status
+        except requests.exceptions.ConnectTimeout:
+            return {}
     
     def __setParameter(self, parameter, value):
         setRequest = requests.get("http://%s/mqtt?payload=%s=%s" % (self.host, parameter, value))
@@ -194,7 +206,7 @@ class GoeCharger:
         else:
             return self.__setParameter('alw', '0')
 
-    # TODO: not working with fw 033
+    # TODO: not necessary (tested with fw 033)
     def setAutoStop(self, autoStop):
         if autoStop:
             return self.__setParameter('stp', '2')
