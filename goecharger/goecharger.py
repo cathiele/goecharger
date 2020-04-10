@@ -27,12 +27,12 @@ class GoeChargerStatusMapper:
         try:
             phase = int(status.get('pha'))
 
-            pre_contactor_l1 = self.__phaseDetection(phase, 0x20)
+            pre_contactor_l3 = self.__phaseDetection(phase, 0x20)
             pre_contactor_l2 = self.__phaseDetection(phase, 0x10)
-            pre_contactor_l3 = self.__phaseDetection(phase, 0x08)
-            post_contactor_l1 = self.__phaseDetection(phase, 0x04)
+            pre_contactor_l1 = self.__phaseDetection(phase, 0x08)
+            post_contactor_l3 = self.__phaseDetection(phase, 0x04)
             post_contactor_l2 = self.__phaseDetection(phase, 0x02)
-            post_contactor_l3 = self.__phaseDetection(phase, 0x01)
+            post_contactor_l1 = self.__phaseDetection(phase, 0x01)
         except Exception:
             pre_contactor_l1 = pre_contactor_l2 = pre_contactor_l3 = 'unknown'
             post_contactor_l1 = post_contactor_l2 = post_contactor_l3 = 'unknown'
