@@ -1,1 +1,1 @@
-from .goecharger import GoeCharger
+from .goecharger import GoeCharger  # noqa
