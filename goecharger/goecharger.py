@@ -23,6 +23,7 @@ class GoeChargerStatusMapper:
         allow_charging = GoeCharger.GO_ALLOW_CHARGING.get(status.get('alw')) or 'unknown'
         stop_mode = GoeCharger.GO_STOP_MODE.get(status.get('stp')) or 'unknown'
         cable_max_current = int(status.get('cbl', 0))
+        cable_lock_mode = int(status.get('ust', 0))
 
         try:
             phase = int(status.get('pha'))
@@ -65,6 +66,7 @@ class GoeChargerStatusMapper:
             'charger_access': charger_access,
             'allow_charging': allow_charging,
             'stop_mode': stop_mode,
+            'cable_lock_mode': cable_lock_mode,
             'cable_max_current': cable_max_current,
             'pre_contactor_l1': pre_contactor_l1,
             'pre_contactor_l2': pre_contactor_l2,
@@ -132,7 +134,7 @@ class GoeCharger:
         RFID_APP = 1
         AUTO = 2
 
-    class LockType(Enum):
+    class CableLockMode(Enum):
         UNLOCKCARFIRST = 0
         AUTOMATIC = 1
         LOCKED = 2
@@ -199,15 +201,15 @@ class GoeCharger:
 
         raise ValueError('Invalid AccessType: %d provided' % accessType)
 
-    def setLockType(self, lockType):
+    def setCableLockMode(self, cableCableLockMode):
         if (
-            lockType == GoeCharger.LockType.UNLOCKCARFIRST or
-            lockType == GoeCharger.LockType.AUTOMATIC or
-            lockType == GoeCharger.LockType.LOCKED
+            cableCableLockMode == GoeCharger.CableLockMode.UNLOCKCARFIRST or
+            cableCableLockMode == GoeCharger.CableLockMode.AUTOMATIC or
+            cableCableLockMode == GoeCharger.CableLockMode.LOCKED
         ):
-            return self.__setParameter('ust', str(lockType.value))
+            return self.__setParameter('ust', str(cableCableLockMode.value))
 
-        raise ValueError('Invalid LockType: %d provided' % lockType)
+        raise ValueError('Invalid CableLockMode: %d provided' % cableCableLockMode)
 
     def setAllowCharging(self, allow):
         if allow:
