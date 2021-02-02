@@ -263,7 +263,7 @@ class GoeCharger:
             current = 32
         return self.__setParameter('amp', str(current))
 
-    def setPVMaxCurrent(self, current):
+    def setTmpMaxCurrent(self, current):
         if current < 6:
             current = 6
         if current > 32:
