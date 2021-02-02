@@ -263,6 +263,13 @@ class GoeCharger:
             current = 32
         return self.__setParameter('amp', str(current))
 
+    def setPVMaxCurrent(self, current):
+        if current < 6:
+            current = 6
+        if current > 32:
+            current = 32
+        return self.__setParameter('amx', str(current))
+
     def setChargeLimit(self, chargeLimit):
         limit = int(chargeLimit * 10) if chargeLimit >= 0 else 0
         return self.__setParameter('dwo', str(limit))
