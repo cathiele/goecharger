@@ -4,6 +4,7 @@
 
 import requests
 from enum import Enum
+from json.decoder import JSONDecodeError
 
 
 class GoeChargerStatusMapper:
@@ -38,7 +39,7 @@ class GoeChargerStatusMapper:
             pre_contactor_l1 = pre_contactor_l2 = pre_contactor_l3 = 'unknown'
             post_contactor_l1 = post_contactor_l2 = post_contactor_l3 = 'unknown'
 
-        charger_temp = int(status.get('tmp', 0))
+        charger_temp = int(status.get('tmp', 0))  # Deprecated: Just for chargers with old firmware
         current_session_charged_energy = round(int(status.get('dws', 0)) / 360000.0, 5)
         charge_limit = int(status.get('dwo', 0)) / 10.0
         adapter = GoeCharger.GO_ADAPTER.get(status.get('adi')) or 'unknown'
@@ -74,8 +75,12 @@ class GoeChargerStatusMapper:
             'post_contactor_l1': post_contactor_l1,
             'post_contactor_l2': post_contactor_l2,
             'post_contactor_l3': post_contactor_l3,
-            'charger_temp': charger_temp,
-            'current_session_charged_energy': current_session_charged_energy,
+            'charger_temp': charger_temp,  # Deprecated: Just for chargers with old firmware
+            'charger_temp0': round(float(valueOrNull(status.get('tma', []), GoeCharger.TMA_0)), 2),
+            'charger_temp1': round(float(valueOrNull(status.get('tma', []), GoeCharger.TMA_1)), 2),
+            'charger_temp2': round(float(valueOrNull(status.get('tma', []), GoeCharger.TMA_2)), 2),
+            'charger_temp3': round(float(valueOrNull(status.get('tma', []), GoeCharger.TMA_3)), 2),
+            'current_session_charged_energy': round(current_session_charged_energy, 5),
             'charge_limit': charge_limit,
             'adapter': adapter,
             'unlocked_by_card': unlocked_by_card,
@@ -155,6 +160,11 @@ class GoeCharger:
     LF_L2 = 13
     LF_L3 = 14
     LF_N = 15
+
+    TMA_0 = 0
+    TMA_1 = 1
+    TMA_2 = 2
+    TMA_3 = 3
 
     GO_ERR = {
         '0': 'OK',
@@ -284,6 +294,10 @@ class GoeCharger:
         return self.__setParameter('al%d' % step, str(current))
 
     def requestStatus(self):
-        status = self.__queryStatusApi()
-        response = GoeChargerStatusMapper().mapApiStatusResponse(status)
+        response = {}
+        try:
+            status = self.__queryStatusApi()
+            response = GoeChargerStatusMapper().mapApiStatusResponse(status)
+        except JSONDecodeError:
+            response = GoeChargerStatusMapper().mapApiStatusResponse({})
         return response

@@ -1,6 +1,10 @@
+
+.PHONY: activate init test test-report lint
+
 activate:
-	source .env/bin/activate
+	echo "Please run: source .env/bin/activate"
 init:
+	echo "Please run: python -m venv .env"
 
 test:
 	coverage run -m nose2 -v
