@@ -26,6 +26,12 @@ class GoeChargerStatusMapper:
         cable_max_current = int(status.get('cbl', 0))
         cable_lock_mode = int(status.get('ust', 0))
 
+        def valueOrNull(array, index):
+            try:
+                return array[index]
+            except IndexError:
+                return 0
+
         try:
             phase = int(status.get('pha'))
 
@@ -39,7 +45,15 @@ class GoeChargerStatusMapper:
             pre_contactor_l1 = pre_contactor_l2 = pre_contactor_l3 = 'unknown'
             post_contactor_l1 = post_contactor_l2 = post_contactor_l3 = 'unknown'
 
-        charger_temp = int(status.get('tmp', 0))  # Deprecated: Just for chargers with old firmware
+        if len(status.get('tma', [])) > 0:
+            t0 = float(valueOrNull(status.get('tma', []), GoeCharger.TMA_0))
+            t1 = float(valueOrNull(status.get('tma', []), GoeCharger.TMA_1))
+            t2 = float(valueOrNull(status.get('tma', []), GoeCharger.TMA_2))
+            t3 = float(valueOrNull(status.get('tma', []), GoeCharger.TMA_3))
+            charger_temp = round(int((t0 + t1 + t2 + t3) / 4), 2)
+        else:
+            charger_temp = int(status.get('tmp', 0))  # Deprecated: Just for chargers with old firmware
+
         current_session_charged_energy = round(int(status.get('dws', 0)) / 360000.0, 5)
         charge_limit = int(status.get('dwo', 0)) / 10.0
         adapter = GoeCharger.GO_ADAPTER.get(status.get('adi')) or 'unknown'
@@ -53,11 +67,6 @@ class GoeChargerStatusMapper:
         timezone_offset = int(status.get('tof', 0)) - 100
         timezone_dst_offset = int(status.get('tds', 0))
 
-        def valueOrNull(array, index):
-            try:
-                return array[index]
-            except IndexError:
-                return 0
 
         return ({
             'car_status': car_status,
