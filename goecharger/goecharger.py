@@ -59,6 +59,18 @@ class GoeChargerStatusMapper:
         adapter = GoeCharger.GO_ADAPTER.get(status.get('adi')) or 'unknown'
         unlocked_by_card = int(status.get('uby', 0))
         energy_total = int(status.get('eto', 0)) / 10.0
+        energy_by_token = {
+                'token_a': int(status.get('eca', 0)) / 10,
+                'token_r': int(status.get('ecr', 0)) / 10,
+                'token_d': int(status.get('ecd', 0)) / 10,
+                'token_4': int(status.get('ec4', 0)) / 10,
+                'token_5': int(status.get('ec5', 0)) / 10,
+                'token_6': int(status.get('ec6', 0)) / 10,
+                'token_7': int(status.get('ec7', 0)) / 10,
+                'token_8': int(status.get('ec8', 0)) / 10,
+                'token_9': int(status.get('ec9', 0)) / 10,
+                'token_1': int(status.get('ec1', 0)) / 10
+        }
         wifi = 'connected' if status.get('wst') == '3' else 'unknown' if status.get('wst') is None else 'not connected'
         firmware = status.get('fwv', 'unknown')
         serial_number = status.get('sse', 'unknown')
@@ -94,6 +106,7 @@ class GoeChargerStatusMapper:
             'adapter': adapter,
             'unlocked_by_card': unlocked_by_card,
             'energy_total': energy_total,
+            'energy_by_token': energy_by_token,
             'wifi': wifi,
 
             'u_l1': int(valueOrNull(status.get('nrg', []), GoeCharger.U_L1)),
