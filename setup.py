@@ -9,6 +9,7 @@ setuptools.setup(
     author="Carsten Thiele",
     author_email="software@carsten-thiele.de",
     description="A Python API for accessing the go-eCharger EV-Charger",
+    license="MIT",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/cathiele/goecharger",
