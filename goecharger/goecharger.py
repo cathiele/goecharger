@@ -79,7 +79,6 @@ class GoeChargerStatusMapper:
         timezone_offset = int(status.get('tof', 0)) - 100
         timezone_dst_offset = int(status.get('tds', 0))
 
-
         return ({
             'car_status': car_status,
             'charger_max_current': charger_max_current,
